@@ -1,0 +1,599 @@
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using ProjectManagementSystem1.Data.Configurations;
+using ProjectManagementSystem1.Model.Entities;
+using ProjectManagementSystem1.Model.Entities.ProjectRequestEntities;
+using ProjectManagementSystem1.Model.Entities.RequestConfigs;
+using ProjectManagementSystem1.Models.Entities.ProjectRequestEntities;
+using System.Reflection.Emit;
+
+namespace ProjectManagementSystem1.Data
+{
+    public class AppDbContext : IdentityDbContext<ApplicationUser>
+    {
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
+        public DbSet<UserAccessToken> UserAccessTokens { get; set; }
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
+        public DbSet<Project> Projects { get; set; }
+        public DbSet<ProjectAssignment> ProjectAssignments { get; set; }
+        public DbSet<Message> Messages { get; set; }
+        public DbSet<Escalation> Escalations { get; set; }
+        public DbSet<EscalationReply> EscalationReplies { get; set; }
+        public DbSet<EscalationUser> EscalationUsers { get; set; }
+        public DbSet<Timeline> Timelines { get; set; }
+        public DbSet<TimelinePhase> TimelinePhases { get; set; }
+        //public DbSet<TimelineDependency> TimelineDependencies { get; set; }
+        public DbSet<Milestone> Milestones { get; set; }
+        public DbSet<ProjectTask> ProjectTasks { get; set; }
+        public DbSet<TodoItem> TodoItems { get; set; }
+        public DbSet<Comment> Comments { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
+        //public DbSet<ProjectGoal> ProjectGoals { get; set; }
+        public DbSet<Attachment> Attachments { get; set; }
+        public DbSet<AttachmentPermission> AttachmentPermissions { get; set; }
+        public DbSet<ActivityLog> ActivityLogs { get; set; }
+        public DbSet<ActivityLogFieldChange> ActivityLogFieldChanges { get; set; }
+        public DbSet<AccessLog> AccessLogs { get; set; }
+        public DbSet<TaskDependency> TaskDependencies { get; set; }
+        public DbSet<ErpUser> ErpUsers { get; set; }
+        public DbSet<MessageReadStatus> MessageReadStatuses { get; set; }
+        public DbSet<MilestoneMember> MilestoneMembers { get; set; }
+
+        public DbSet<Issue> Issues { get; set; }
+
+        public DbSet<ProjectRequest> ProjectRequests { get; set; }
+        public DbSet<ProjectRequestAssignment> ProjectRequestAssignments { get; set; }
+        public DbSet<ProjectRequestAttachment> ProjectRequestAttachments { get; set; }
+        public DbSet<ProjectRequestComment> ProjectRequestComments { get; set; }
+        public DbSet<ProjectRequestEvaluation> ProjectRequestEvaluations { get; set; }
+        public DbSet<ProjectRequestReviewTask> ProjectRequestReviewTasks { get; set; }
+        public DbSet<ProjectRequestFeedback> ProjectRequestFeedbacks { get; set; }
+        public DbSet<ProjectRequestWorkflowHistory> ProjectRequestWorkflowHistories { get; set; }
+        public DbSet<ProjectRequestStatusHistory> ProjectRequestStatusHistories { get; set; }
+        public DbSet<ProjectRequestOwnerHistory> ProjectRequestOwnerHistories { get; set; }
+        public DbSet<ProjectRequestAudit> ProjectRequestAudits { get; set; }
+        public DbSet<RequestTypeConfig> RequestTypeConfigs { get; set; }
+        public DbSet<PriorityConfig> PriorityConfigs { get; set; }
+        public DbSet<StatusConfig> StatusConfigs { get; set; }
+        public DbSet<ReviewTaskConfig> ReviewTaskConfigs { get; set; }
+        public DbSet<WorkflowStageConfig> WorkflowStageConfigs { get; set; }
+        public DbSet<RequestCategoryConfig> RequestCategoryConfigs { get; set; }
+        public DbSet<ServiceCategoryConfig> ServiceCategoryConfigs { get; set; }
+        public DbSet<ProductCategoryConfig> ProductCategoryConfigs { get; set; }
+        public DbSet<ImpactUrgencyConfig> ImpactUrgencyConfigs { get; set; }
+        public DbSet<AssignmentRoleConfig> AssignmentRoleConfigs { get; set; }
+        public DbSet<StrategicAlignmentConfig> StrategicAlignmentConfigs { get; set; }
+        public DbSet<RequestIdSequence> RequestIdSequences { get; set; }
+        public DbSet<IndependentTask> IndependentTasks { get; set; }
+        public DbSet<TaskStatusHistory> TaskStatusHistories { get; set; }
+        public DbSet<PersonalTodo> PersonalTodo { get; set; }
+        public DbSet<AddSkill> AddSkills { get; set; }
+        public DbSet<UserSkill> UserSkills { get; set; }
+        public DbSet<Archive> Archives { get; set; }
+        public DbSet<ScheduledReportEntity> ScheduledReports { get; set; }
+        public DbSet<ScheduledReportExecutionEntity> ScheduledReportExecutions { get; set; }
+        public object TaskAssignments { get; internal set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            // ApplicationUser self-reference
+            modelBuilder.Entity<ApplicationUser>()
+                .HasOne(u => u.ReportsTo)
+                .WithMany(u => u.DirectReports)
+                .HasForeignKey(u => u.ReportsToUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // ProjectTask relationships
+            modelBuilder.Entity<ProjectTask>(entity =>
+            {
+                // Link to ProjectAssignment (required)
+                entity.HasOne(t => t.ProjectAssignment)
+                            .WithMany(pa => pa.Tasks) // Add this navigation property
+                            .HasForeignKey(t => t.ProjectAssignmentId)
+                            .OnDelete(DeleteBehavior.Restrict);
+
+                // Self-referential hierarchy
+                entity.HasOne(t => t.ParentTask)
+                    .WithMany(t => t.SubTasks)
+                    .HasForeignKey(t => t.ParentTaskId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+
+
+            modelBuilder.Entity<AttachmentPermission>(entity =>
+            {
+                entity.HasOne(ap => ap.Attachment)
+                .WithMany()
+                .HasForeignKey(ap => ap.AttachmentId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(ap => ap.User)
+                .WithMany()
+                .HasForeignKey(ap => ap.UserId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+                entity.HasOne(ap => ap.Role)
+                .WithMany()
+                .HasForeignKey(ap => ap.RoleId)
+                .OnDelete(DeleteBehavior.NoAction);
+            });
+
+
+            modelBuilder.Entity<Attachment>()
+                .HasOne(a => a.UploadedBy)
+                .WithMany()
+                .HasForeignKey(a => a.UploadedByUserId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            //modelBuilder.Entity<Attachment>()
+            // .OwnsMany(a => a.Metadata, m =>
+            // {
+            //     m.WithOwner().HasForeignKey("AttachmentId");
+            //     m.Property<Guid>("Id"); // Shadow PK
+            //     m.HasKey("Id");
+            // });
+
+            modelBuilder.Entity<Attachment>()
+            .OwnsMany(a => a.Metadata, m =>
+            {
+                m.ToTable("AttachmentMetadata");
+                m.WithOwner().HasForeignKey("AttachmentId");
+                m.Property<Guid>("Id"); // Shadow PK
+                m.HasKey("Id");
+                m.Property(m => m.Key).HasMaxLength(100);
+                m.Property(m => m.Value).HasMaxLength(100);
+                m.HasIndex(x => new { x.Key, x.Value }); // Composite index
+            });
+
+            //modelBuilder.Entity<AttachmentMetadata>()
+            //    .HasIndex(m => new { m.Key, m.Value });
+
+            modelBuilder.Entity<IndependentTask>()
+                .HasOne(t => t.CreatedByUser)
+                .WithMany()
+                .HasForeignKey(t => t.CreatedByUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<IndependentTask>()
+                .HasOne(t => t.AssignedToUser)
+                .WithMany()
+                .HasForeignKey(t => t.AssignedToUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<IndependentTask>()
+                .Property(t => t.Status)
+                .HasConversion<string>();
+
+            modelBuilder.Entity<IndependentTask>()
+              .Property(t => t.Priority)
+              .HasConversion<string>();
+
+            modelBuilder.Entity<PersonalTodo>()
+                .HasOne(pt => pt.User)
+                .WithMany() // Or a navigation property in ApplicationUser
+                .HasForeignKey(pt => pt.UserId)
+                .OnDelete(DeleteBehavior.Restrict); // Or DeleteBehavior.NoAction
+
+            modelBuilder.Entity<PersonalTodo>()
+                .Property(t => t.Status)
+                .HasConversion<string>();
+
+            modelBuilder.Entity<PersonalTodo>()
+                .Property(t => t.Priority)
+                .HasConversion<string>();
+
+            modelBuilder.Entity<MessageReadStatus>()
+                .HasOne(mrs => mrs.Message)
+                .WithMany(message => message.ReadStatuses)
+                .HasForeignKey(mrs => mrs.MessageId)
+                .OnDelete(DeleteBehavior.Restrict); // 👈 prevent cascade delete
+
+
+            modelBuilder.Entity<MessageReadStatus>()
+                .HasOne(mrs => mrs.User)
+                .WithMany()
+                .HasForeignKey(mrs => mrs.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Issue>()
+                .HasKey(i => i.Id); // Defines Id as the primary key
+
+            modelBuilder.Entity<Issue>()
+                .Property(i => i.Id)
+                .ValueGeneratedOnAdd();
+
+            modelBuilder.Entity<Issue>()
+                .HasOne(i => i.Project)
+                .WithMany(p => p.Issues) // Assuming Project has a collection of Issues
+                .HasForeignKey(i => i.ProjectId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Issue>()
+                .HasMany(i => i.ProjectTasks)
+                .WithOne(pt => pt.Issue) // Assuming ProjectTask has a navigation property for Issue
+                .HasForeignKey(pt => pt.IssueId) // Foreign key in ProjectTask
+                .OnDelete(DeleteBehavior.Cascade); // Or another behavior you prefer
+
+
+
+            modelBuilder.Entity<Milestone>()
+                .Property(m => m.Status)
+                .HasConversion<string>();
+
+            // In your DbContext's OnModelCreating
+            modelBuilder.Entity<ProjectTask>()
+                .HasIndex(t => t.Status);
+
+            modelBuilder.Entity<ProjectTask>()
+               .HasIndex(t => t.ProjectAssignmentId)
+               .HasDatabaseName("IX_ProjectTask_Assignment");
+
+            modelBuilder.Entity<ProjectTask>()
+                .HasIndex(t => t.AssignedMemberId)
+                .HasDatabaseName("IX_ProjectTask_Assignee");
+
+            // Add critical indexes for performance optimization
+            modelBuilder.Entity<ProjectTask>()
+                .HasIndex(t => t.ParentTaskId)
+                .HasDatabaseName("IX_ProjectTask_ParentTask");
+
+            modelBuilder.Entity<ProjectTask>()
+                .HasIndex(t => new { t.ParentTaskId, t.Status })
+                .HasDatabaseName("IX_ProjectTask_ParentStatus");
+
+            modelBuilder.Entity<ProjectTask>()
+                .HasIndex(t => new { t.ProjectAssignmentId, t.Status, t.DueDate })
+                .HasDatabaseName("IX_ProjectTask_AssignmentStatusDue");
+
+            modelBuilder.Entity<ProjectTask>()
+                .HasIndex(t => new { t.AssignedMemberId, t.Status })
+                .HasDatabaseName("IX_ProjectTask_AssigneeStatus");
+
+            // Add indexes for IndependentTask performance
+            modelBuilder.Entity<IndependentTask>()
+                .HasIndex(t => t.AssignedToUserId)
+                .HasDatabaseName("IX_IndependentTask_Assignee");
+
+            modelBuilder.Entity<IndependentTask>()
+                .HasIndex(t => t.CreatedByUserId)
+                .HasDatabaseName("IX_IndependentTask_Creator");
+
+            modelBuilder.Entity<IndependentTask>()
+                .HasIndex(t => new { t.AssignedToUserId, t.Status })
+                .HasDatabaseName("IX_IndependentTask_AssigneeStatus");
+
+            // Add indexes for ActivityLog performance
+            modelBuilder.Entity<ActivityLog>()
+                .HasIndex(t => new { t.UserId, t.CreatedAt })
+                .HasDatabaseName("IX_ActivityLog_UserCreated");
+
+            modelBuilder.Entity<ActivityLog>()
+                .HasIndex(t => new { t.EntityType, t.EntityId })
+                .HasDatabaseName("IX_ActivityLog_Entity");
+
+            // Add indexes for Notification performance
+            modelBuilder.Entity<Notification>()
+                .HasIndex(t => new { t.RecipientUserId, t.Status })
+                .HasDatabaseName("IX_Notification_UserStatus");
+
+            modelBuilder.Entity<Notification>()
+                .HasIndex(t => t.CreatedAt)
+                .HasDatabaseName("IX_Notification_CreatedAt");
+
+            modelBuilder.Entity<ProjectTask>(entity =>
+            {
+                entity.Property(p => p.Description)
+                    .HasColumnName("Description") // Ensure column name matches
+                    .HasColumnType("nvarchar(max)"); // Use appropriate data type
+            });
+
+            modelBuilder.Entity<TodoItem>(entity =>
+            {
+                entity.HasOne(t => t.ProjectTask)
+                      .WithMany(p => p.TodoItems)
+                      .HasForeignKey(t => t.ProjectTaskId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<TodoItem>()
+             .HasIndex(t => t.Status);
+
+            // In your DbContext's OnModelCreating
+            modelBuilder.Entity<ProjectTask>(entity =>
+            {
+                entity.Property(p => p.Description)
+                .HasColumnType("nvarchar(MAX)")
+                .HasMaxLength(4000);
+
+                entity.HasIndex(p => p.ProjectAssignmentId);
+                entity.HasIndex(p => p.AssignedMemberId);
+                entity.HasIndex(p => p.Status);
+                entity.HasIndex(p => p.Priority);
+                entity.HasIndex(p => p.DueDate);
+            });
+
+
+            modelBuilder.Entity<UserSkill>()
+               .HasKey(us => new { us.UserId, us.SkillId });
+
+            modelBuilder.Entity<UserSkill>()
+                .HasOne(us => us.User)
+                .WithMany(u => u.UserSkills)
+                .HasForeignKey(us => us.UserId)
+                .OnDelete(DeleteBehavior.Cascade); // Or Restrict based on your needs
+
+            modelBuilder.Entity<UserSkill>()
+                .HasOne(us => us.Skill)
+                .WithMany(s => s.UserSkills)
+                .HasForeignKey(us => us.SkillId);
+
+            // Index for search optimization
+            modelBuilder.Entity<AddSkill>()
+                .HasIndex(s => s.NormalizedName);
+            // or appropriate type for your DB
+
+            // Configure TaskDependency to prevent cascade delete issues
+            modelBuilder.Entity<TaskDependency>(entity =>
+            {
+                entity.HasOne(td => td.PredecessorTask)
+                    .WithMany()
+                    .HasForeignKey(td => td.PredecessorTaskId)
+                    .OnDelete(DeleteBehavior.NoAction);
+
+                entity.HasOne(td => td.SuccessorTask)
+                    .WithMany()
+                    .HasForeignKey(td => td.SuccessorTaskId)
+                    .OnDelete(DeleteBehavior.NoAction);
+
+                entity.HasOne(td => td.CreatedBy)
+                    .WithMany()
+                    .HasForeignKey(td => td.CreatedByUserId)
+                    .OnDelete(DeleteBehavior.NoAction);
+            });
+
+            modelBuilder.ApplyConfiguration(new ProjectRequestConfiguration());
+
+            modelBuilder.Entity<RequestIdSequence>(entity =>
+            {
+                entity.HasIndex(s => s.RequestDate).IsUnique();
+            });
+
+            modelBuilder.Entity<ProjectRequestAttachment>(entity =>
+            {
+                entity.HasIndex(a => a.ProjectRequestId);
+                entity.Property(a => a.FileName).HasMaxLength(255);
+            });
+
+            modelBuilder.Entity<ProjectRequestComment>(entity =>
+            {
+                entity.HasIndex(c => c.ProjectRequestId);
+                entity.Property(c => c.CommentText).HasMaxLength(2000);
+            });
+
+            modelBuilder.Entity<ProjectRequestFeedback>(entity =>
+            {
+                entity.HasIndex(f => f.ProjectRequestId);
+                entity.Property(f => f.FeedbackText).HasMaxLength(2000);
+            });
+
+            // Configure relationships with cascade behavior
+            modelBuilder.Entity<ProjectRequest>()
+                .HasMany(p => p.Attachments)
+                .WithOne(a => a.ProjectRequest)
+                .HasForeignKey(a => a.ProjectRequestId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ProjectRequest>()
+                .HasMany(p => p.Comments)
+                .WithOne(c => c.ProjectRequest)
+                .HasForeignKey(c => c.ProjectRequestId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ProjectRequest>()
+                .HasMany(p => p.Feedbacks)
+                .WithOne(f => f.ProjectRequest)
+                .HasForeignKey(f => f.ProjectRequestId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ProjectRequest>()
+                .HasMany(p => p.WorkflowHistories)
+                .WithOne(w => w.ProjectRequest)
+                .HasForeignKey(w => w.ProjectRequestId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ProjectRequest>()
+                .HasMany(p => p.StatusHistories)
+                .WithOne(s => s.ProjectRequest)
+                .HasForeignKey(s => s.ProjectRequestId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ProjectRequest>()
+                .HasMany(p => p.OwnerHistories)
+                .WithOne(o => o.ProjectRequest)
+                .HasForeignKey(o => o.ProjectRequestId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Configure ProjectRequest relationships
+            modelBuilder.Entity<ProjectRequest>()
+                .HasOne(pr => pr.StatusConfig)
+                .WithMany(s => s.ProjectRequests)
+                .HasForeignKey(pr => pr.StatusConfigId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ProjectRequest>()
+                .HasOne(pr => pr.RequestTypeConfig)
+                .WithMany(rt => rt.ProjectRequests)
+                .HasForeignKey(pr => pr.RequestTypeConfigId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ProjectRequest>()
+                .HasOne(pr => pr.PriorityConfig)
+                .WithMany(p => p.ProjectRequests)
+                .HasForeignKey(pr => pr.PriorityConfigId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Configure ImpactUrgencyConfig multiple relationships
+            modelBuilder.Entity<ProjectRequest>()
+                .HasOne(pr => pr.BusinessImpactConfig)
+                .WithMany(i => i.BusinessImpactConfigRequests)
+                .HasForeignKey(pr => pr.BusinessImpactConfigId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ProjectRequest>()
+                .HasOne(pr => pr.RequestUrgencyConfig)
+                .WithMany(i => i.RequestUrgencyConfigRequests)
+                .HasForeignKey(pr => pr.RequestUrgencyConfigId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ProjectRequest>()
+                .HasOne(pr => pr.RiskLevelConfig)
+                .WithMany(i => i.RiskLevelConfigRequests)
+                .HasForeignKey(pr => pr.RiskLevelConfigId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ProjectRequest>()
+                .HasOne(pr => pr.ComplexityLevelConfig)
+                .WithMany(i => i.ComplexityLevelConfigRequests)
+                .HasForeignKey(pr => pr.ComplexityLevelConfigId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<AssignmentRoleConfig>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Name).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.Code).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.Description).HasMaxLength(500);
+                entity.Property(e => e.CreatedBy).HasMaxLength(50);
+                entity.Property(e => e.LastUpdatedBy).HasMaxLength(50);
+
+                // Index for performance
+                entity.HasIndex(e => e.Code).IsUnique();
+                entity.HasIndex(e => e.IsActive);
+            });
+
+            //Escalation relationships - FIXED CONFIGURATION
+            modelBuilder.Entity<Escalation>(entity =>
+            {
+                entity.ToTable("Escalations");
+                entity.Property(e => e.SenderId).HasColumnType("nvarchar(450)").IsRequired();
+                entity.Property(e => e.ProjectId).HasColumnType("int");
+                entity.Property(e => e.MilestoneId).HasColumnType("int");
+                entity.Property(e => e.IndependentTaskId).HasColumnType("int");
+                entity.Property(e => e.ProjectTaskId).HasColumnType("int");
+                entity.Property(e => e.Status).HasColumnType("nvarchar(50)").IsRequired();
+                entity.Property(e => e.ResponseTimeLimit).HasColumnType("datetime2").IsRequired();
+                entity.Property(e => e.Content).HasColumnType("nvarchar(2000)");
+                entity.Property(e => e.TimeSent).HasColumnType("datetime2").IsRequired();
+
+                // FIX: Changed from "bool" to "bit"
+                entity.Property(e => e.IsRead)
+                    .HasColumnType("bit")
+                    .HasDefaultValue(false);
+
+                entity.Property(e => e.ProjectId)
+                      .HasColumnName("ProjectId");
+
+                // Configure relationships to other entities - REMOVED DUPLICATE RELATIONSHIPS
+                entity.HasOne(e => e.Project)
+                      .WithMany(p => p.Escalations)
+                      .HasForeignKey(e => e.ProjectId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(e => e.Milestone)
+                    .WithMany(m => m.Escalations)
+                    .HasForeignKey(e => e.MilestoneId)
+                    .OnDelete(DeleteBehavior.NoAction);
+
+                entity.HasOne(e => e.IndependentTask)
+                    .WithMany(it => it.Escalations)
+                    .HasForeignKey(e => e.IndependentTaskId)
+                    .OnDelete(DeleteBehavior.NoAction);
+
+                entity.HasOne(e => e.ProjectTask)
+                    .WithMany(pt => pt.Escalations)
+                    .HasForeignKey(e => e.ProjectTaskId)
+                    .OnDelete(DeleteBehavior.NoAction);
+
+                // Sender relationship (one-to-many)
+                entity.HasOne(e => e.Sender)
+                      .WithMany(u => u.SentEscalations)
+                      .HasForeignKey(e => e.SenderId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                // Parent escalation self-reference
+                entity.HasOne(e => e.ParentEscalation)
+                    .WithMany()
+                    .HasForeignKey(e => e.ParentEscalationId)
+                    .OnDelete(DeleteBehavior.NoAction);
+            });
+
+            // EscalationUser configuration - FIXED with composite key
+            modelBuilder.Entity<EscalationUser>(entity =>
+            {
+                entity.ToTable("EscalationUsers");
+
+                // Use composite primary key (EscalationId, UserId)
+                entity.HasKey(eu => new { eu.EscalationId, eu.UserId });
+
+                // FIX: Changed from "bool" to "bit"
+                entity.Property(eu => eu.IsRead)
+                    .HasColumnType("bit")
+                    .HasDefaultValue(false);
+
+                entity.HasOne(eu => eu.Escalation)
+                      .WithMany(e => e.EscalationUsers)
+                      .HasForeignKey(eu => eu.EscalationId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(eu => eu.User)
+                      .WithMany(u => u.EscalationUsers)
+                      .HasForeignKey(eu => eu.UserId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Configure EscalationReply entity - FIXED
+            modelBuilder.Entity<EscalationReply>(entity =>
+            {
+                entity.HasKey(er => er.Id);
+
+                // FIX: Changed from "bool" to "bit"
+                entity.Property(er => er.IsRead)
+                    .HasColumnType("bit")
+                    .HasDefaultValue(false);
+
+                // Configure relationships
+                entity.HasOne(er => er.Sender)
+                    .WithMany()
+                    .HasForeignKey(er => er.SenderId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(er => er.Receiver)
+                    .WithMany()
+                    .HasForeignKey(er => er.ReceiverId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(er => er.Escalation)
+                    .WithMany(e => e.EscalationReplies)
+                    .HasForeignKey(er => er.EscalationId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Prevent circular references via SQL trigger (optional)
+            //entity.HasCheckConstraint("CK_NoSelfReference", "ParentTaskId <> Id");
+
+            //// Limit hierarchy depth
+            //entity.HasCheckConstraint("CK_MaxDepth", "Depth BETWEEN 0 AND 10");
+
+            modelBuilder
+                    .Entity<Archive>()
+                    .Property(a => a.EntityType)
+                    .HasConversion<string>();
+
+            base.OnModelCreating(modelBuilder);
+
+        }
+
+    }
+}

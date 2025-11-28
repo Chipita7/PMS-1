@@ -1,0 +1,43 @@
+warning: in the working copy of 'Backend/Program.cs', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'Backend/Properties/launchSettings.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'Frontend/src/components/Sidebar.tsx', LF will be replaced by CRLF the next time Git touches it
+Backend/Program.cs:371: trailing whitespace.
+[32m+[m[32m            context.User.HasClaim(c => c.Type == ClaimTypes.Role &&[m[41m [m
+Backend/Program.cs:372: trailing whitespace.
+[32m+[m[32m                (c.Value == "Admin" ||[m[41m [m
+Backend/Program.cs:373: trailing whitespace.
+[32m+[m[32m                 c.Value == "Manager" ||[m[41m [m
+Backend/Program.cs:374: trailing whitespace.
+[32m+[m[32m                 c.Value == "Director" ||[m[41m [m
+Backend/Program.cs:375: trailing whitespace.
+[32m+[m[32m                 c.Value == "Vice President" ||[m[41m [m
+Backend/Services/ProjectService/ProjectApprovalService.cs:151: trailing whitespace.
+[32m+[m[32m            return roles.Any(r =>[m[41m [m
+Frontend/src/components/Sidebar.tsx:94: trailing whitespace.
+[32m+[m[32m    href: "/dashboard/:role/projects/new/1",[m[41m [m
+Frontend/src/lib/api.ts:216: trailing whitespace.
+[32m+[m[41m            [m
+Frontend/src/pages/Projects/AssignedToMe.tsx:316: trailing whitespace.
+[32m+[m[41m          [m
+Frontend/src/pages/Projects/AssignedToMe.tsx:319: trailing whitespace.
+[32m+[m[41m          [m
+Frontend/src/pages/Projects/AssignedToMe.tsx:326: trailing whitespace.
+[32m+[m[41m          [m
+Frontend/src/pages/Projects/AssignedToMe.tsx:330: trailing whitespace.
+[32m+[m[41m        [m
+Frontend/src/pages/Projects/MyProjects.tsx:1477: trailing whitespace.
+[32m+[m[41m        [m
+Frontend/src/pages/dashboards/Dashboard.tsx:156: trailing whitespace.
+[32m+[m[32m        ? projects.filter(project =>[m[41m [m
+Frontend/src/pages/dashboards/Dashboard.tsx:157: trailing whitespace.
+[32m+[m[32m            project.status === 'Active' ||[m[41m [m
+Frontend/src/pages/dashboards/Dashboard.tsx:161: trailing whitespace.
+[32m+[m[32m        : projects.filter(project =>[m[41m [m
+Frontend/src/pages/dashboards/Dashboard.tsx:162: trailing whitespace.
+[32m+[m[32m            project.createdBy === user?.employeeId ||[m[41m [m
+Frontend/src/services/authService.ts:262: trailing whitespace.
+[32m+[m[41m    [m
+Frontend/src/services/authService.ts:277: trailing whitespace.
+[32m+[m[41m      [m
+Frontend/src/services/authService.ts:285: trailing whitespace.
+[32m+[m[41m      [m
