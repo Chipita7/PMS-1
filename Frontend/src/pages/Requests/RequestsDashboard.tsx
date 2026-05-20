@@ -19,6 +19,9 @@ import {
   MoreVertical,
   ChevronLeft,
   Sparkles,
+  Calendar,
+  User,
+  Tag,
 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import DataTables from "@/components/DataTables";
@@ -274,40 +277,89 @@ const RequestsDashboard: React.FC<{ darkMode?: boolean }> = ({ darkMode }) => {
 
   const requestColumns = React.useMemo(() => [
     {
-      name: "ID",
+      name: "Request ID",
       selector: (row: ProjectRequestSummary) => row.requestID || row.id,
       sortable: true,
-      width: "20%",
+      width: "13%",
       cell: (row: ProjectRequestSummary) => (
-        <span className="font-mono font-semibold text-sm">#{row.requestID || row.id}</span>
+        <div className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-[#B351A9]/8 to-[#E4CA86]/8 border border-[#CDA352]/30">
+          <span className="font-mono text-sm font-bold text-[#85257C]">
+            {row.requestID || `PR-${row.id}`}
+          </span>
+        </div>
       ),
     },
     {
       name: "Title",
       selector: (row: ProjectRequestSummary) => row.requestTitle,
       sortable: true,
-      width: "30%",
+      width: "22%",
       cell: (row: ProjectRequestSummary) => (
-        <div className="font-semibold text-[#273238] text-sm">{row.requestTitle}</div>
+        <div className="py-1">
+          <div className="font-semibold text-[#273238] text-sm leading-snug">{row.requestTitle}</div>
+        </div>
       ),
+    },
+    {
+      name: "Status",
+      selector: (row: ProjectRequestSummary) => row.status || "",
+      sortable: true,
+      width: "13%",
+      cell: (row: ProjectRequestSummary) => {
+        const raw = (row.status || "").toLowerCase();
+        let bgClass = "bg-gray-100 text-[#273238] border-gray-200";
+        if (raw.includes("submit") || raw.includes("new") || raw.includes("pending")) {
+          bgClass = "bg-[#CDA352]/10 text-[#CDA352] border-[#CDA352]/25";
+        } else if (raw.includes("approve") || raw.includes("complete") || raw.includes("deliver")) {
+          bgClass = "bg-emerald-50 text-emerald-600 border-emerald-200";
+        } else if (raw.includes("reject")) {
+          bgClass = "bg-red-50 text-red-600 border-red-200";
+        } else if (raw.includes("evaluation") || raw.includes("progress")) {
+          bgClass = "bg-[#B351A9]/10 text-[#B351A9] border-[#B351A9]/20";
+        }
+        return (
+          <span className={`px-3 py-1.5 rounded-lg text-xs font-bold border ${bgClass}`}>
+            {row.status || "—"}
+          </span>
+        );
+      },
     },
     {
       name: "Requester",
       selector: (row: ProjectRequestSummary) => row.requestedByName || "—",
       sortable: true,
-      width: "20%",
+      width: "17%",
       cell: (row: ProjectRequestSummary) => (
-        <span className="text-sm text-gray-700">{row.requestedByName || "—"}</span>
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#B351A9] to-[#85257C] flex items-center justify-center flex-shrink-0">
+            <User className="w-3.5 h-3.5 text-white" />
+          </div>
+          <span className="text-sm font-medium text-[#273238] truncate">{row.requestedByName || "—"}</span>
+        </div>
       ),
     },
     {
       name: "Date",
       selector: (row: ProjectRequestSummary) => row.createdDate,
       sortable: true,
-      width: "20%",
-      cell: (row: ProjectRequestSummary) => (
-        <span className="text-sm text-gray-600">{row.createdDate}</span>
-      ),
+      width: "12%",
+      cell: (row: ProjectRequestSummary) => {
+        if (!row.createdDate) return <span className="text-sm text-gray-400">—</span>;
+        const date = new Date(row.createdDate);
+        return (
+          <div className="flex items-start gap-1.5">
+            <Calendar className="w-3.5 h-3.5 text-[#B351A9] mt-0.5 flex-shrink-0" />
+            <div>
+              <div className="text-sm font-semibold text-[#273238] leading-tight">
+                {date.toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+              </div>
+              <div className="text-xs text-gray-400 leading-tight">
+                {date.getFullYear()}
+              </div>
+            </div>
+          </div>
+        );
+      },
     },
     {
       name: "Actions",
@@ -319,14 +371,12 @@ const RequestsDashboard: React.FC<{ darkMode?: boolean }> = ({ darkMode }) => {
         const handleClick = (e: React.MouseEvent) => {
           e.stopPropagation();
 
-          // Calculate position when opening
           if (openMenuId !== row.id && buttonRef.current) {
             const rect = buttonRef.current.getBoundingClientRect();
             const viewportHeight = window.innerHeight;
             const spaceBelow = viewportHeight - rect.bottom;
             const spaceAbove = rect.top;
 
-            // If less than 250px space below and more space above, show upward
             if (spaceBelow < 250 && spaceAbove > spaceBelow) {
               setDropdownPosition('top');
             } else {
@@ -552,7 +602,10 @@ const RequestsDashboard: React.FC<{ darkMode?: boolean }> = ({ darkMode }) => {
             {/* Title and Filters Row */}
             <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 ">
               <div className="flex flex-col gap-3">
-                <h2 className="text-xl font-bold mb-1 text-[#273238]">{headingLabel}</h2>
+                <div>
+                  <h2 className="text-xl font-bold text-[#273238]">{headingLabel}</h2>
+                  <p className="text-sm text-gray-500 mt-1">{displayed.length} request{displayed.length !== 1 ? 's' : ''} found</p>
+                </div>
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => { setViewFilter("all"); setStatusFilter("active"); }}
