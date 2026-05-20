@@ -1,7 +1,7 @@
-// RequestList.tsx - refreshed implementation with purple/gold theme and description removed from columns
+// RequestList.tsx - redesigned to match the Idea Intake (RequestForm) page aesthetic
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import {  RefreshCw, ChevronLeft } from 'lucide-react';
+import { RefreshCw, ChevronLeft, Sparkles, Calendar, User, Building2, Tag, AlertCircle } from 'lucide-react';
 import DataTables from '@/components/DataTables';
 import { getAllProjectRequests, type ProjectRequestDto } from '@/services/requestService';
 
@@ -89,16 +89,17 @@ const RequestList: React.FC<{ darkMode?: boolean }> = ({ darkMode = false }) => 
     navigate(`/dashboard/${role}/requests/${row.id}`);
   };
 
-  // Columns with equal width distribution
   const requestColumns = (darkMode: boolean) => [
     {
       name: 'Request ID',
       selector: (row: ProjectRequestDto) => row.requestID || `PR-${row.id}`,
       sortable: true,
-      width: '12%',
+      width: '13%',
       cell: (row: ProjectRequestDto) => (
-        <div className="font-mono text-sm font-bold text-[#B351A9]">
-          {row.requestID || `PR-${row.id}`}
+        <div className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-[#B351A9]/8 to-[#E4CA86]/8 border border-[#CDA352]/30">
+          <span className="font-mono text-sm font-bold text-[#85257C]">
+            {row.requestID || `PR-${row.id}`}
+          </span>
         </div>
       ),
     },
@@ -106,9 +107,11 @@ const RequestList: React.FC<{ darkMode?: boolean }> = ({ darkMode = false }) => 
       name: 'Title',
       selector: (row: ProjectRequestDto) => row.requestTitle,
       sortable: true,
-      width: '18%',
+      width: '20%',
       cell: (row: ProjectRequestDto) => (
-        <div className="font-semibold text-[#273238]">{row.requestTitle}</div>
+        <div className="py-1">
+          <div className="font-semibold text-[#273238] text-sm leading-snug">{row.requestTitle}</div>
+        </div>
       ),
     },
     {
@@ -117,7 +120,10 @@ const RequestList: React.FC<{ darkMode?: boolean }> = ({ darkMode = false }) => 
       sortable: true,
       width: '12%',
       cell: (row: ProjectRequestDto) => (
-        <span className="text-sm text-[#273238]">{row.requestType}</span>
+        <div className="flex items-center gap-1.5">
+          <Tag className="w-3.5 h-3.5 text-[#B351A9] flex-shrink-0" />
+          <span className="text-sm font-medium text-[#273238]">{row.requestType || '—'}</span>
+        </div>
       ),
     },
     {
@@ -125,37 +131,24 @@ const RequestList: React.FC<{ darkMode?: boolean }> = ({ darkMode = false }) => 
       selector: (row: ProjectRequestDto) => row.priority,
       sortable: true,
       width: '10%',
-      cell: (row: ProjectRequestDto) => (
-        <div className="flex items-center">
-          <span
-            className="px-3 py-1.5 rounded-lg text-xs font-bold"
-            style={(() => {
-              const priority = (row.priority || '').toLowerCase();
-              let color = '#273238';
-              let borderColor = 'rgba(39, 50, 56, 0.15)';
-
-              if (priority.includes('high')) {
-                color = '#85257c';
-                borderColor = 'rgba(133, 37, 124, 0.15)';
-              } else if (priority.includes('medium') || priority.includes('med')) {
-                color = '#CDA352';
-                borderColor = 'rgba(205, 163, 82, 0.15)';
-              } else if (priority.includes('low')) {
-                color = '#273238';
-                borderColor = 'rgba(39, 50, 56, 0.15)';
-              }
-
-              return {
-                backgroundColor: `${color}20`,
-                color,
-                border: `1px solid ${borderColor}`,
-              };
-            })()}
-          >
+      cell: (row: ProjectRequestDto) => {
+        const priority = (row.priority || '').toLowerCase();
+        let bgClass = 'bg-gray-100 text-[#273238] border-gray-200';
+        if (priority.includes('critical')) {
+          bgClass = 'bg-red-50 text-red-700 border-red-200';
+        } else if (priority.includes('high')) {
+          bgClass = 'bg-[#85257c]/10 text-[#85257C] border-[#85257c]/20';
+        } else if (priority.includes('medium') || priority.includes('med')) {
+          bgClass = 'bg-[#CDA352]/10 text-[#CDA352] border-[#CDA352]/20';
+        } else if (priority.includes('low')) {
+          bgClass = 'bg-gray-100 text-[#273238] border-gray-200';
+        }
+        return (
+          <span className={`px-3 py-1.5 rounded-lg text-xs font-bold border ${bgClass}`}>
             {row.priority || '—'}
           </span>
-        </div>
-      ),
+        );
+      },
     },
     {
       name: 'Status',
@@ -164,28 +157,18 @@ const RequestList: React.FC<{ darkMode?: boolean }> = ({ darkMode = false }) => 
       width: '13%',
       cell: (row: ProjectRequestDto) => {
         const raw = (row.status || '').toLowerCase();
-        let color = '#273238';
-        let borderColor = 'rgba(39, 50, 56, 0.15)';
-
+        let bgClass = 'bg-gray-100 text-[#273238] border-gray-200';
         if (raw.includes('submit') || raw.includes('new') || raw.includes('pending')) {
-          color = '#CDA352';
-          borderColor = 'rgba(205, 163, 82, 0.35)';
+          bgClass = 'bg-[#CDA352]/10 text-[#CDA352] border-[#CDA352]/25';
         } else if (raw.includes('approve') || raw.includes('complete') || raw.includes('deliver')) {
-          color = '#10B981';
-          borderColor = 'rgba(16, 185, 129, 0.35)';
-        } else if (raw.includes('reject') || raw.includes('backlog') || raw.includes('close') || raw.includes('progress')) {
-          color = '#273238';
-          borderColor = 'rgba(39, 50, 56, 0.35)';
+          bgClass = 'bg-emerald-50 text-emerald-600 border-emerald-200';
+        } else if (raw.includes('reject')) {
+          bgClass = 'bg-red-50 text-red-600 border-red-200';
+        } else if (raw.includes('evaluation') || raw.includes('progress')) {
+          bgClass = 'bg-[#B351A9]/10 text-[#B351A9] border-[#B351A9]/20';
         }
         return (
-          <span
-            className="px-3 py-1.5 rounded-lg text-xs font-bold border-2"
-            style={{
-              backgroundColor: `${color}20`,
-              color,
-              borderColor,
-            }}
-          >
+          <span className={`px-3 py-1.5 rounded-lg text-xs font-bold border ${bgClass}`}>
             {row.status || '—'}
           </span>
         );
@@ -197,33 +180,44 @@ const RequestList: React.FC<{ darkMode?: boolean }> = ({ darkMode = false }) => 
       sortable: true,
       width: '13%',
       cell: (row: ProjectRequestDto) => (
-        <span className="text-sm text-[#273238]">{row.requestedByName}</span>
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#B351A9] to-[#85257C] flex items-center justify-center flex-shrink-0">
+            <User className="w-3.5 h-3.5 text-white" />
+          </div>
+          <span className="text-sm font-medium text-[#273238] truncate">{row.requestedByName || '—'}</span>
+        </div>
       ),
     },
     {
       name: 'Department',
       selector: (row: ProjectRequestDto) => row.businessDepartment,
       sortable: true,
-      width: '12%',
+      width: '11%',
       cell: (row: ProjectRequestDto) => (
-        <span className="text-sm text-gray-600">{row.businessDepartment}</span>
+        <div className="flex items-center gap-1.5">
+          <Building2 className="w-3.5 h-3.5 text-[#CDA352] flex-shrink-0" />
+          <span className="text-sm text-gray-600 truncate">{row.businessDepartment || '—'}</span>
+        </div>
       ),
     },
     {
       name: 'Created Date',
       selector: (row: ProjectRequestDto) => row.createdDate,
       sortable: true,
-      width: '10%',
+      width: '8%',
       cell: (row: ProjectRequestDto) => {
-        if (!row.createdDate) return '—';
+        if (!row.createdDate) return <span className="text-sm text-gray-400">—</span>;
         const date = new Date(row.createdDate);
         return (
-          <div className="text-sm">
-            <div className="font-semibold text-[#273238]">
-              {date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-            </div>
-            <div className="text-gray-500 text-xs">
-              {date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+          <div className="flex items-start gap-1.5">
+            <Calendar className="w-3.5 h-3.5 text-[#B351A9] mt-0.5 flex-shrink-0" />
+            <div>
+              <div className="text-sm font-semibold text-[#273238] leading-tight">
+                {date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+              </div>
+              <div className="text-xs text-gray-400 leading-tight">
+                {date.getFullYear()}
+              </div>
             </div>
           </div>
         );
@@ -259,34 +253,39 @@ const RequestList: React.FC<{ darkMode?: boolean }> = ({ darkMode = false }) => 
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-[#E4CA86]/5 to-[#B351A9]/5 font-['Times_New_Roman',_Times,_serif]">
-      {/* Header */}
-      <header className="bg-white border-b-4 border-[#B351A9] sticky top-0 z-30 shadow-sm">
-        <div className="max-w-8xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <button onClick={handleBack} className="p-2 hover:bg-[#B351A9]/10 rounded-xl transition-colors">
-              <ChevronLeft className="w-5 h-5 text-[#B351A9]" />
-            </button>
-            <div>
-            <h1 className="text-2xl font-bold text-[#B351A9] flex">Project Requests</h1>
-            <p className="text-sm text-[#85257C]">View and manage all project requests</p>
+      {/* Header - Matching Idea Intake (RequestForm) */}
+      <div className="bg-white border-b-4 border-[#B351A9] sticky top-0 z-30">
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <button onClick={handleBack} className="mr-4 p-2 hover:bg-[#B351A9]/10 rounded-lg transition-colors">
+                <ChevronLeft className="w-5 h-5 text-[#B351A9]" />
+              </button>
+              <div>
+                <h1 className="text-2xl font-bold text-[#B351A9] flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-[#CDA352]" />
+                  Submitted Ideas
+                </h1>
+                <p className="text-gray-600 text-sm ml-7">View and manage all submitted project requests</p>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="text-xl font-semibold text-[#85257C]">Commercial Bank of Ethiopia</div>
+              <div className="text-sm font-medium text-[#CDA352]">Digital Factory</div>
             </div>
           </div>
-          <div className="text-right">
-            <div className="text-xl font-bold text-[#85257C]">Commercial Bank of Ethiopia</div>
-            <div className="text-base font-medium text-[#CDA352]">Digital Factory</div>
-          </div>
         </div>
-      </header>
+      </div>
 
-      <main className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-6 py-8">
         {/* Error Message */}
         {error && (
-          <div className="mb-6 p-4 bg-red-50 border-2 border-red-300 rounded-xl">
-            <div className="flex items-center gap-2">
-              <span className="text-red-600 font-bold">⚠</span>
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <div className="flex items-start">
+              <AlertCircle className="w-5 h-5 text-red-500 mr-3 mt-0.5 flex-shrink-0" />
               <div>
-                <p className="text-sm font-bold text-red-800">Error loading requests</p>
-                <p className="text-sm text-red-600">{error}</p>
+                <h3 className="text-sm font-semibold text-red-800">Error loading requests</h3>
+                <p className="text-sm text-red-700 mt-1">{error}</p>
               </div>
             </div>
           </div>
@@ -296,14 +295,17 @@ const RequestList: React.FC<{ darkMode?: boolean }> = ({ darkMode = false }) => 
         <div className="bg-white rounded-2xl shadow-xl border border-[#CDA352]/20 overflow-visible">
           <div className="bg-gradient-to-r from-[#B351A9]/5 to-[#E4CA86]/5 px-6 py-5 border-b border-[#CDA352]/20">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <h2 className="text-xl font-bold text-[#273238]">All Project Requests</h2>
+              <div>
+                <h2 className="text-xl font-bold text-[#273238]">All Project Requests</h2>
+                <p className="text-sm text-gray-500 mt-1">{filteredRequests.length} request{filteredRequests.length !== 1 ? 's' : ''} found</p>
+              </div>
               <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                 <div className="flex items-center gap-2">
                   <label className="text-sm text-[#273238] font-semibold">Status</label>
                   <select
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
-                    className="px-3 py-2 rounded-lg border border-[#CDA352]/30 text-sm focus:outline-none focus:ring-2 focus:ring-[#B351A9]/20 bg-white"
+                    className="px-3 py-2 rounded-lg border border-[#CDA352]/30 text-sm focus:outline-none focus:ring-2 focus:ring-[#B351A9]/20 bg-white font-['Times_New_Roman',_Times,_serif]"
                   >
                     <option value="all">All</option>
                     <option value="active">Active</option>
@@ -321,15 +323,15 @@ const RequestList: React.FC<{ darkMode?: boolean }> = ({ darkMode = false }) => 
                   <button
                     onClick={fetchRequests}
                     disabled={loading}
-                    className={`px-4 py-2 rounded-lg font-semibold transition-all flex items-center gap-2 bg-white text-[#273238] hover:bg-gray-50 border-2 border-[#273238]/20 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    className={`p-2.5 rounded-lg font-semibold transition-all flex items-center gap-2 bg-white text-[#273238] hover:bg-gray-50 border border-[#CDA352]/30 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
                     <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
                   </button>
                   <button
                     onClick={handleNewRequest}
-                    className="px-4 py-2 rounded-lg font-semibold text-sm text-white bg-gradient-to-r from-[#CDA352] to-[#E4CA86] hover:from-[#E4CA86] hover:to-[#CDA352] transition-all flex items-center gap-2 shadow-md hover:shadow-lg"
+                    className="inline-flex items-center px-5 py-2.5 rounded-lg bg-gradient-to-r from-[#CDA352] to-[#E4CA86] hover:from-[#E4CA86] hover:to-[#CDA352] text-white text-sm font-semibold shadow-md hover:shadow-lg transition-all"
                   >
-                    <span>New Request</span>
+                    New Request
                   </button>
                 </div>
               </div>
