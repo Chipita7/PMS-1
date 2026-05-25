@@ -54,23 +54,32 @@ const SummaryCard = ({
   value, 
   icon, 
   color,
-  darkMode 
+  darkMode,
+  subtitle
 }: { 
   title: string; 
   value: number | string; 
   icon: React.ReactNode;
   color: string;
   darkMode: boolean;
+  subtitle?: string;
 }) => (
-  <div className={`p-4 rounded-lg flex items-center justify-between ${darkMode ? 'bg-zinc-700' : 'bg-white shadow'}`}>
+  <div className={`p-5 rounded-xl flex flex-col justify-between min-h-[140px] ${darkMode ? 'bg-zinc-700' : 'bg-white shadow'}`}>
+    <div className="flex items-center justify-between">
+      <h3 className={`text-sm font-semibold ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>{title}</h3>
+      <div className={`w-8 h-8 rounded-full border flex items-center justify-center ${darkMode ? 'border-gray-500' : 'border-gray-300'}`}>
+        <div style={{ color }}>{icon}</div>
+      </div>
+    </div>
     <div>
-      <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{title}</p>
-      <p className="text-2xl font-bold" style={{ color: darkMode ? '#f3f4f6' : '#374151' }}>
+      <p className="text-3xl font-bold mt-3" style={{ color: darkMode ? '#f3f4f6' : '#374151' }}>
         {value}
       </p>
-    </div>
-    <div className="w-10 h-10 rounded-lg flex items-center justify-center ml-4">
-      <div style={{ color }}>{icon}</div>
+      {subtitle && (
+        <p className={`text-xs mt-2 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+          {subtitle}
+        </p>
+      )}
     </div>
   </div>
 );
