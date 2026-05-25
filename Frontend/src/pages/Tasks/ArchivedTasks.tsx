@@ -65,20 +65,21 @@ const ArchivedTasks = ({ darkMode, isSidebarOpen }: { darkMode: boolean; isSideb
           <div className="flex items-center mb-6">
             <Link 
               to="/dashboard/member" 
-              className={`mr-4 p-2 rounded-lg ${darkMode ? 'hover:bg-zinc-700' : 'hover:bg-gray-100'}`}
+              className={`mr-4 p-2 rounded-lg ${darkMode ? 'hover:bg-zinc-700' : 'hover:bg-purple-50'}`}
             >
               <ArrowLeft className="w-6 h-6" />
             </Link>
            
-            <h2 className="text-3xl font-bold">{title}</h2>
+            <h2 className={`text-3xl font-bold ${darkMode ? 'text-gray-200' : 'text-purple-900'}`}>{title}</h2>
           </div>
 
 
           <div className="mx-8">
             {tasks.length === 0 ? (
-              <div className={`text-center py-12 rounded-lg ${darkMode ? 'bg-zinc-700' : 'bg-gray-50'}`}>
+              <div className={`text-center py-12 rounded-lg ${darkMode ? 'bg-zinc-700' : 'bg-purple-50'}`}>
+                <Archive className={`w-12 h-12 mx-auto mb-3 ${darkMode ? 'text-gray-400' : 'text-purple-400'}`} />
                 <p className="text-lg">No archived tasks found</p>
-                <p className="mt-2 text-gray-500">
+                <p className={`mt-2 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                   Tasks you archive will appear here
                 </p>
               </div>
@@ -87,15 +88,15 @@ const ArchivedTasks = ({ darkMode, isSidebarOpen }: { darkMode: boolean; isSideb
                 {tasks.map((task) => (
                   <div
                     key={task.id}
-                    className={`p-4 rounded-lg border transition-colors ${
+                    className={`p-4 rounded-lg border-l-4 border transition-colors ${
                       listDarkMode 
-                        ? `border-zinc-600 ${task.id === selectedId ? 'bg-zinc-600' : 'bg-zinc-700'}`
-                        : `border-gray-200 ${task.id === selectedId ? 'bg-purple-50' : 'bg-white'}`
-                    } shadow-sm`}
+                        ? `border-zinc-600 border-l-purple-500 ${task.id === selectedId ? 'bg-zinc-600' : 'bg-zinc-700'}`
+                        : `border-gray-200 border-l-purple-500 ${task.id === selectedId ? 'bg-purple-50' : 'bg-white'}`
+                    } shadow-sm hover:shadow-md`}
                   >
                     <div className="flex justify-between items-start">
                       <h3 className="font-bold text-lg flex items-center">
-                        <Archive className="w-4 h-4 mr-2 text-gray-500" />
+                        <Archive className={`w-4 h-4 mr-2 ${darkMode ? 'text-purple-400' : 'text-purple-600'}`} />
                         {task.title}
                       </h3>
                       <span className={`text-xs px-2 py-1 rounded-md flex items-center ${priorityColors[task.priority]}`}>
@@ -113,7 +114,7 @@ const ArchivedTasks = ({ darkMode, isSidebarOpen }: { darkMode: boolean; isSideb
                         {statusIcons[task.status]}
                         {task.status.replace('-', ' ')}
                       </span>
-                      <span className={`text-xs px-2 py-1 rounded-md ${darkMode ? 'bg-zinc-600' : 'bg-gray-200'}`}>
+                      <span className={`text-xs px-2 py-1 rounded-md ${darkMode ? 'bg-purple-900 text-purple-200' : 'bg-purple-100 text-purple-800'}`}>
                         {task.project}
                       </span>
                     </div>
@@ -124,15 +125,15 @@ const ArchivedTasks = ({ darkMode, isSidebarOpen }: { darkMode: boolean; isSideb
                         <span>{task.team}</span>
                       </div>
                       
-                      <div className="flex items-center text-sm text-gray-500">
-                        <Calendar className="w-4 h-4 mr-1" />
+                      <div className={`flex items-center text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                        <Calendar className={`w-4 h-4 mr-1 ${darkMode ? 'text-purple-400' : 'text-purple-500'}`} />
                         {formatDate(task.dueDate)}
                       </div>
                     </div>
                     
                     {task.files > 0 && (
-                      <div className="mt-3 flex items-center text-sm text-gray-500">
-                        <Paperclip className="w-4 h-4 mr-1" />
+                      <div className={`mt-3 flex items-center text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                        <Paperclip className={`w-4 h-4 mr-1 ${darkMode ? 'text-purple-400' : 'text-purple-500'}`} />
                         {task.files} file{task.files > 1 ? 's' : ''}
                       </div>
                     )}

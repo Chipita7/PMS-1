@@ -13,11 +13,8 @@ dist
 dist-ssr
 
 # Environment files
-.env
-.env.*
 
 # Editor directories and files
-.vscode/*
 !.vscode/extensions.json
 .idea
 .history
@@ -59,15 +56,12 @@ dist-ssr/
 # ========================
 # ENVIRONMENT FILES
 # ========================
-.env
-.env.*
 Frontend/.env
 Frontend/.env.*
 
 # ========================
 # EDITOR / IDE SETTINGS
 # ========================
-.vscode/*
 !.vscode/extensions.json
 .idea/
 .fleet/
@@ -122,3 +116,4 @@ Thumbs.db
 *.sln.docstates
 *.user
 *.sw?
+config.bat
