@@ -1252,24 +1252,27 @@ const RequestDetailsTabs: React.FC<Props> = ({ requestId }) => {
   );
 
   const renderWorkflow = () => (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
-        <h4 className="font-semibold text-[#273238] mb-4 flex items-center gap-2">
-          <GitPullRequest className="w-5 h-5 text-[#B351A9]" /> Workflow Stages
+    <div className="space-y-6">
+      <section className="bg-gradient-to-br from-[#B351A9]/5 via-white to-[#E4CA86]/5 rounded-lg border border-[#CDA352]/30 shadow-sm p-6">
+        <h4 className="text-lg font-semibold text-[#B351A9] mb-4 pb-3 border-b border-[#CDA352]/40 flex items-center">
+          <GitPullRequest className="w-5 h-5 mr-2 text-[#CDA352]" />
+          Workflow Stages
         </h4>
         {workflowHistory.length ? (
-          <ul className="space-y-3 text-sm">
+          <div className="space-y-3">
             {workflowHistory.map((item) => (
-              <li key={item.id} className="border border-gray-100 rounded-lg p-3">
-                <p className="font-semibold text-gray-900">{item.workflowStage}</p>
-                <p className="text-xs text-gray-500">{item.changedBy}</p>
-                <p className="text-xs text-gray-500">
-                  {formatDate(item.startDate)} → {formatDate(item.endDate)}
-                </p>
-                <p className="text-xs text-gray-400">Duration: {formatDuration(item.durationDays)}</p>
-              </li>
+              <div key={item.id} className="bg-gradient-to-r from-[#B351A9]/10 to-[#E4CA86]/10 rounded-lg p-4 border border-[#CDA352]/20">
+                <p className="font-semibold text-[#B351A9]">{item.workflowStage}</p>
+                <div className="mt-2 space-y-1">
+                  <p className="text-sm text-[#85257C]">{item.changedBy}</p>
+                  <p className="text-sm text-gray-600">
+                    {formatDate(item.startDate)} → {formatDate(item.endDate)}
+                  </p>
+                  <p className="text-xs text-gray-500">Duration: {formatDuration(item.durationDays)}</p>
+                </div>
+              </div>
             ))}
-          </ul>
+          </div>
         ) : (
           <EmptyState
             icon={<Layers className="w-6 h-6" />}
@@ -1277,25 +1280,28 @@ const RequestDetailsTabs: React.FC<Props> = ({ requestId }) => {
             description="Stage history will be tracked automatically when workflow events occur."
           />
         )}
-      </div>
+      </section>
 
-      <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
-        <h4 className="font-semibold text-[#273238] mb-4 flex items-center gap-2">
-          <History className="w-5 h-5 text-[#B351A9]" /> Status Transitions
+      <section className="bg-gradient-to-br from-[#E4CA86]/5 via-white to-[#B351A9]/5 rounded-lg border border-[#B351A9]/30 shadow-sm p-6">
+        <h4 className="text-lg font-semibold text-[#B351A9] mb-4 pb-3 border-b border-[#CDA352]/40 flex items-center">
+          <History className="w-5 h-5 mr-2 text-[#CDA352]" />
+          Status Transitions
         </h4>
         {statusHistory.length ? (
-          <ul className="space-y-3 text-sm">
+          <div className="space-y-3">
             {statusHistory.map((item) => (
-              <li key={item.id} className="border border-gray-100 rounded-lg p-3">
-                <p className="font-semibold text-gray-900">
+              <div key={item.id} className="bg-gradient-to-r from-[#B351A9]/10 to-[#E4CA86]/10 rounded-lg p-4 border border-[#CDA352]/20">
+                <p className="font-semibold text-[#B351A9]">
                   {item.fromStatus} → {item.toStatus}
                 </p>
-                <p className="text-xs text-gray-500">{item.changedBy}</p>
-                <p className="text-xs text-gray-500">{formatDateTime(item.changedAt)}</p>
-                <p className="text-xs text-gray-400">Duration: {formatDuration(item.durationInPreviousStatus)}</p>
-              </li>
+                <div className="mt-2 space-y-1">
+                  <p className="text-sm text-[#85257C]">{item.changedBy}</p>
+                  <p className="text-sm text-gray-600">{formatDateTime(item.changedAt)}</p>
+                  <p className="text-xs text-gray-500">Duration: {formatDuration(item.durationInPreviousStatus)}</p>
+                </div>
+              </div>
             ))}
-          </ul>
+          </div>
         ) : (
           <EmptyState
             icon={<History className="w-6 h-6" />}
@@ -1303,7 +1309,7 @@ const RequestDetailsTabs: React.FC<Props> = ({ requestId }) => {
             description="As the request progresses between states, they will show up here."
           />
         )}
-      </div>
+      </section>
     </div>
   );
 
@@ -1318,29 +1324,35 @@ const RequestDetailsTabs: React.FC<Props> = ({ requestId }) => {
       );
     }
     return (
-      <div className="space-y-3">
-        {ownerHistory.map((entry) => (
-          <div key={entry.id} className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-semibold text-gray-900">{entry.ownerName || entry.ownerId}</p>
-                <p className="text-xs text-gray-500">{entry.ownerRole}</p>
+      <section className="bg-gradient-to-br from-[#B351A9]/5 via-white to-[#E4CA86]/5 rounded-lg border border-[#CDA352]/30 shadow-sm p-6">
+        <h4 className="text-lg font-semibold text-[#B351A9] mb-4 pb-3 border-b border-[#CDA352]/40 flex items-center">
+          <UserCircle2 className="w-5 h-5 mr-2 text-[#CDA352]" />
+          Ownership History
+        </h4>
+        <div className="space-y-3">
+          {ownerHistory.map((entry) => (
+            <div key={entry.id} className="bg-gradient-to-r from-[#B351A9]/10 to-[#E4CA86]/10 rounded-lg p-4 border border-[#CDA352]/20">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-semibold text-[#B351A9]">{entry.ownerName || entry.ownerId}</p>
+                  <p className="text-xs text-[#85257C]">{entry.ownerRole}</p>
+                </div>
+                <span
+                  className={`text-xs px-2 py-0.5 rounded-full border ${entry.status === "Active"
+                    ? "bg-green-50 text-green-700 border-green-200"
+                    : "bg-gray-50 text-gray-600 border-gray-200"
+                    }`}
+                >
+                  {entry.status}
+                </span>
               </div>
-              <span
-                className={`text-xs px-2 py-0.5 rounded-full border ${entry.status === "Active"
-                  ? "bg-green-50 text-green-700 border-green-200"
-                  : "bg-gray-50 text-gray-600 border-gray-200"
-                  }`}
-              >
-                {entry.status}
-              </span>
+              <p className="text-xs text-gray-500 mt-2">
+                {formatDate(entry.startDate)} → {formatDate(entry.endDate)}
+              </p>
             </div>
-            <p className="text-xs text-gray-500 mt-2">
-              {formatDate(entry.startDate)} → {formatDate(entry.endDate)}
-            </p>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      </section>
     );
   };
 
@@ -1359,56 +1371,62 @@ const RequestDetailsTabs: React.FC<Props> = ({ requestId }) => {
       <div className="space-y-6">
         {auditSummary && (
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+            <div className="bg-white border border-[#CDA352]/20 rounded-xl p-4 shadow-sm">
               <p className="text-xs text-gray-500">Total Entries</p>
-              <p className="text-2xl font-semibold text-gray-900">{auditSummary.totalAuditEntries}</p>
+              <p className="text-2xl font-semibold text-[#B351A9]">{auditSummary.totalAuditEntries}</p>
             </div>
-            <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+            <div className="bg-white border border-[#CDA352]/20 rounded-xl p-4 shadow-sm">
               <p className="text-xs text-gray-500">Status Changes</p>
-              <p className="text-2xl font-semibold text-gray-900">{auditSummary.statusChangeCount}</p>
+              <p className="text-2xl font-semibold text-[#B351A9]">{auditSummary.statusChangeCount}</p>
             </div>
-            <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+            <div className="bg-white border border-[#CDA352]/20 rounded-xl p-4 shadow-sm">
               <p className="text-xs text-gray-500">Owner Changes</p>
-              <p className="text-2xl font-semibold text-gray-900">{auditSummary.ownerChangeCount}</p>
+              <p className="text-2xl font-semibold text-[#B351A9]">{auditSummary.ownerChangeCount}</p>
             </div>
-            <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+            <div className="bg-white border border-[#CDA352]/20 rounded-xl p-4 shadow-sm">
               <p className="text-xs text-gray-500">Last Activity</p>
-              <p className="text-sm font-semibold text-gray-900">{formatDateTime(auditSummary.lastActivity)}</p>
+              <p className="text-sm font-semibold text-[#85257C]">{formatDateTime(auditSummary.lastActivity)}</p>
             </div>
           </div>
         )}
 
         {recentAudit.length > 0 && (
-          <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
-            <h4 className="font-semibold text-gray-900 mb-3">Recent Activity</h4>
-            <ul className="space-y-3 text-sm">
+          <section className="bg-gradient-to-br from-[#B351A9]/5 via-white to-[#E4CA86]/5 rounded-lg border border-[#CDA352]/30 shadow-sm p-6">
+            <h4 className="text-lg font-semibold text-[#B351A9] mb-4 pb-3 border-b border-[#CDA352]/40 flex items-center">
+              <History className="w-5 h-5 mr-2 text-[#CDA352]" />
+              Recent Activity
+            </h4>
+            <div className="space-y-3 text-sm">
               {recentAudit.map((entry) => (
-                <li key={entry.id} className="border border-gray-100 rounded-lg p-3">
-                  <p className="font-medium text-gray-900">{entry.description}</p>
-                  <p className="text-xs text-gray-500">
+                <div key={entry.id} className="bg-gradient-to-r from-[#B351A9]/10 to-[#E4CA86]/10 rounded-lg p-4 border border-[#CDA352]/20">
+                  <p className="font-medium text-[#B351A9]">{entry.description}</p>
+                  <p className="text-xs text-[#85257C] mt-1">
                     {entry.changedBy} • {formatDateTime(entry.changedOn)}
                   </p>
-                </li>
+                </div>
               ))}
-            </ul>
-          </div>
+            </div>
+          </section>
         )}
 
         {auditTrail.length > 0 && (
-          <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
-            <h4 className="font-semibold text-gray-900 mb-3">Full Audit Trail</h4>
-            <ul className="divide-y divide-gray-100 text-sm">
+          <section className="bg-gradient-to-br from-[#E4CA86]/5 via-white to-[#B351A9]/5 rounded-lg border border-[#B351A9]/30 shadow-sm p-6">
+            <h4 className="text-lg font-semibold text-[#B351A9] mb-4 pb-3 border-b border-[#CDA352]/40 flex items-center">
+              <Shield className="w-5 h-5 mr-2 text-[#CDA352]" />
+              Full Audit Trail
+            </h4>
+            <ul className="divide-y divide-[#CDA352]/20 text-sm">
               {auditTrail.slice(0, 25).map((entry) => (
                 <li key={entry.id} className="py-3">
-                  <p className="font-medium text-gray-900">{entry.action}</p>
-                  <p className="text-xs text-gray-500">
+                  <p className="font-medium text-[#B351A9]">{entry.action}</p>
+                  <p className="text-xs text-[#85257C]">
                     {entry.changedBy} • {formatDateTime(entry.changedOn)}
                   </p>
                   <p className="text-xs text-gray-600">{entry.description}</p>
                 </li>
               ))}
             </ul>
-          </div>
+          </section>
         )}
       </div>
     );
