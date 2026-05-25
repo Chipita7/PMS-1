@@ -62,15 +62,15 @@ const SummaryCard = ({
   color: string;
   darkMode: boolean;
 }) => (
-  <div className={`p-4 rounded-lg flex items-center ${darkMode ? 'bg-zinc-700' : 'bg-white shadow'}`}>
-    <div className="w-10 h-10 rounded-lg flex items-center justify-center mr-4">
-      <div style={{ color }}>{icon}</div>
-    </div>
+  <div className={`p-4 rounded-lg flex items-center justify-between ${darkMode ? 'bg-zinc-700' : 'bg-white shadow'}`}>
     <div>
       <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{title}</p>
       <p className="text-2xl font-bold" style={{ color: darkMode ? '#f3f4f6' : '#374151' }}>
         {value}
       </p>
+    </div>
+    <div className="w-10 h-10 rounded-lg flex items-center justify-center ml-4">
+      <div style={{ color }}>{icon}</div>
     </div>
   </div>
 );
